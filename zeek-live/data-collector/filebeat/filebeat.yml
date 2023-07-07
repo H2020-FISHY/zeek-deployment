@@ -1,0 +1,38 @@
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+filebeat.modules:
+- module: zeek
+  connection:
+    enabled: true
+    var.paths:
+      - /logs/json_streaming_conn*.log    
+  dns:
+    enabled: true
+    var.paths:
+      - /logs/json_streaming_dns*.log
+  http:
+    enabled: true
+    var.paths:
+      - /logs/json_streaming_http*.log
+  ssl:
+    enabled: true
+    var.paths:
+      - /logs/json_streaming_ssl*.log
+  notice:
+    enabled: true
+    var.paths:
+      - /logs/json_streaming_notice*.log
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+logging.level: warning
+
+# setup.kibana:
+#   host: '127.0.0.1:5601'
+#   username: "elastic"
+#   password: "changeme"
+   

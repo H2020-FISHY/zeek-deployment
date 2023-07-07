@@ -1,0 +1,12 @@
+version: "3"
+services:
+  zeek:
+    container_name: zeek
+    build: .
+    restart: "no"
+    volumes:
+      - ./logs:/logs
+    cap_add:
+      - NET_RAW
+    network_mode: "host"
+    command: -i af_packet::enp4s0 -C local

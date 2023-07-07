@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  zeek:
+    container_name: zeek
+    build: ./zeek
+    # image: nonvegan/fishy-tim-zeek-probe
+    cap_add:
+      - NET_RAW
+    command: -i af_packet::virt-interface -C local
+    network_mode: "host"
+    volumes:
+      - ./logs:/logs
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+
+
+  filebeat:
+    container_name: filebeat
+    build: ./filebeat
+    depends_on:
+      - "logstash"
+    networks:
+      - zeek-logshipping-internal-network
+    volumes:
+      - ./logs:/logs
+
+  logstash:
+    container_name: logstash
+    build: ./logstash
+    environment:
+      - ELASTICSEARCH_OUTPUT_URL=********************************
+    depends_on: 
+      - "data-forwarder"
+    networks:
+      - zeek-logshipping-internal-network
+    expose:
+      - "5044"
+      - "9600"
+
+  data-forwarder:
+    container_name: data-forwarder
+    build: ./data-forwarder
+    # image: nonvegan/fishy-tim-zeek-data-forwarder
+    environment:
+      - KEYCLOAK_SERVER_AUTH_URL=*************************************
+      - KEYCLOAK_REALM_NAME=***********
+      - KEYCLOAK_CLIENT_ID=***********
+      - KEYCLOAK_CLIENT_SECRET=********************************
+      - REDIRECT_URL=********************************
+    networks:
+      - zeek-logshipping-internal-network
+    expose:
+      - "5000"
+
+networks:
+    zeek-logshipping-internal-network:
